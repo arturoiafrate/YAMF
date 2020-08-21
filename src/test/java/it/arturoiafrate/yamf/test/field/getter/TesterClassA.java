@@ -13,6 +13,8 @@ public class TesterClassA {
         this.primitiveInteger = primitiveInteger;
     }
 
+    public TesterClassA() {}
+
     public Integer getInteger() {
         return integer;
     }

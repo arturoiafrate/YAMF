@@ -2,6 +2,9 @@ package it.arturoiafrate.yamf.test;
 
 import it.arturoiafrate.yamf.field.IFieldValue;
 import it.arturoiafrate.yamf.field.getter.impl.FieldGetter;
+import it.arturoiafrate.yamf.field.impl.FieldValue;
+import it.arturoiafrate.yamf.field.setter.IFieldSetter;
+import it.arturoiafrate.yamf.field.setter.impl.FieldSetter;
 import it.arturoiafrate.yamf.test.field.getter.TesterClassA;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -53,6 +56,17 @@ public class AllUnitTest {
         } else {
             assertEquals(1, 0); //Test failed
         }
+    }
+
+    @Test
+    public void settingValues(){
+        IFieldSetter fieldSetter = new FieldSetter();
+        TesterClassA copy = fieldSetter.setAll(new TesterClassA(), new FieldGetter<>(testerClassA).getAll().get());
+        assertNotNull(copy);
+        assertEquals(copy.getaBoolean(), testerClassA.getaBoolean());
+        assertEquals(copy.getString(), testerClassA.getString());
+        copy = fieldSetter.set(copy, "primitiveInteger", new FieldValue<>(56));
+        assertEquals(copy.getPrimitiveInteger(), 56);
     }
 
 }
