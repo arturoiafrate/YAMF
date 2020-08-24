@@ -1,11 +1,15 @@
 package it.arturoiafrate.yamf.test;
 
-import it.arturoiafrate.yamf.field.IFieldValue;
+import it.arturoiafrate.yamf.exception.GenericException;
+import it.arturoiafrate.yamf.mapping.factory.IMappingFactory;
+import it.arturoiafrate.yamf.mapping.factory.impl.MappingFactory;
+import it.arturoiafrate.yamf.obj.IGenericObject;
 import it.arturoiafrate.yamf.field.getter.impl.FieldGetter;
-import it.arturoiafrate.yamf.field.impl.FieldValue;
+import it.arturoiafrate.yamf.obj.impl.GenericObject;
 import it.arturoiafrate.yamf.field.setter.IFieldSetter;
 import it.arturoiafrate.yamf.field.setter.impl.FieldSetter;
-import it.arturoiafrate.yamf.test.field.getter.TesterClassA;
+import it.arturoiafrate.yamf.test.classes.TesterClassA;
+import it.arturoiafrate.yamf.test.classes.TesterClassB;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -30,11 +34,11 @@ public class AllUnitTest {
     }
 
     @Test
-    public void gettingValues(){
+    public void gettingValues() throws GenericException {
         FieldGetter<TesterClassA> getter = new FieldGetter<>(testerClassA);
         AtomicReference<String> retValue = new AtomicReference<>();
         AtomicReference<Class<?>> retType = new AtomicReference<>();
-        final Map<String, IFieldValue> valueMap = new HashMap<>();
+        final Map<String, IGenericObject> valueMap = new HashMap<>();
 
         getter.get("string").ifPresent(x ->
                 {
@@ -59,14 +63,26 @@ public class AllUnitTest {
     }
 
     @Test
-    public void settingValues(){
+    public void settingValues() throws GenericException {
         IFieldSetter fieldSetter = new FieldSetter();
         TesterClassA copy = fieldSetter.setAll(new TesterClassA(), new FieldGetter<>(testerClassA).getAll().get());
         assertNotNull(copy);
         assertEquals(copy.getaBoolean(), testerClassA.getaBoolean());
         assertEquals(copy.getString(), testerClassA.getString());
-        copy = fieldSetter.set(copy, "primitiveInteger", new FieldValue<>(56));
+        copy = fieldSetter.set(copy, "primitiveInteger", new GenericObject<>(56));
         assertEquals(copy.getPrimitiveInteger(), 56);
+    }
+
+    @Test
+    public void standardMapping() throws GenericException{
+        TesterClassB classB = new MappingFactory()
+                .fromObject(testerClassA)
+                .toClass(TesterClassB.class)
+                .doConvert();
+
+        assertEquals(testerClassA.getaBoolean(), classB.getaBoolean());
+        assertEquals(testerClassA.getString(), classB.getString());
+
     }
 
 }

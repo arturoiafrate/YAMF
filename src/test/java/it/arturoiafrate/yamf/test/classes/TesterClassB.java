@@ -1,19 +1,19 @@
-package it.arturoiafrate.yamf.test.field.getter;
+package it.arturoiafrate.yamf.test.classes;
 
-public class TesterClassA {
+public class TesterClassB {
     private Integer integer;
     private Boolean aBoolean;
     private String string;
     private int primitiveInteger;
 
-    public TesterClassA(Integer integer, Boolean aBoolean, String string, int primitiveInteger) {
+    public TesterClassB(Integer integer, Boolean aBoolean, String string, int primitiveInteger) {
         this.integer = integer;
         this.aBoolean = aBoolean;
         this.string = string;
         this.primitiveInteger = primitiveInteger;
     }
 
-    public TesterClassA() {}
+    public TesterClassB(){}
 
     public Integer getInteger() {
         return integer;
@@ -46,4 +46,5 @@ public class TesterClassA {
     public void setPrimitiveInteger(int primitiveInteger) {
         this.primitiveInteger = primitiveInteger;
     }
+
 }

@@ -1,23 +1,26 @@
-package it.arturoiafrate.yamf.field.impl;
+package it.arturoiafrate.yamf.obj.impl;
 
-import it.arturoiafrate.yamf.field.IFieldValue;
+import it.arturoiafrate.yamf.obj.IGenericObject;
 
 import java.util.Optional;
 
-public class FieldValue<T> implements IFieldValue {
+public class GenericObject<T> implements IGenericObject {
 
     private final T object;
 
-    public FieldValue(T obj){
+    public GenericObject(T obj){
         object = obj;
     }
 
 
+    @Override
     public Optional<Object> getValue() {
         return Optional.ofNullable(object);
     }
 
+    @Override
     public Class<?> getClassType() {
         return object.getClass();
     }
+
 }

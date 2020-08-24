@@ -1,8 +1,8 @@
-package it.arturoiafrate.yamf.field;
+package it.arturoiafrate.yamf.obj;
 
 import java.util.Optional;
 
-public interface IFieldValue {
+public interface IGenericObject {
     Optional<Object> getValue();
     Class<?> getClassType();
 }
