@@ -1,7 +1,6 @@
 package it.arturoiafrate.yamf.test;
 
 import it.arturoiafrate.yamf.exception.GenericException;
-import it.arturoiafrate.yamf.mapping.factory.IMappingFactory;
 import it.arturoiafrate.yamf.mapping.factory.impl.MappingFactory;
 import it.arturoiafrate.yamf.obj.IGenericObject;
 import it.arturoiafrate.yamf.field.getter.impl.FieldGetter;
@@ -10,6 +9,7 @@ import it.arturoiafrate.yamf.field.setter.IFieldSetter;
 import it.arturoiafrate.yamf.field.setter.impl.FieldSetter;
 import it.arturoiafrate.yamf.test.classes.TesterClassA;
 import it.arturoiafrate.yamf.test.classes.TesterClassB;
+import it.arturoiafrate.yamf.test.classes.TesterClassC;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -83,6 +83,22 @@ public class AllUnitTest {
         assertEquals(testerClassA.getaBoolean(), classB.getaBoolean());
         assertEquals(testerClassA.getString(), classB.getString());
 
+    }
+
+    @Test
+    public void specificFieldsMapping() throws GenericException{
+        TesterClassC classC = new MappingFactory()
+                .fromObject(testerClassA)
+                .toClass(TesterClassC.class)
+                .mapAs("integer", "itg")
+                .mapAs("aBoolean", "bln")
+                .mapAs("string", "str")
+                .doConvert();
+
+        assertEquals(testerClassA.getaBoolean(), classC.getBln());
+        assertEquals(testerClassA.getInteger(), classC.getItg());
+        assertEquals(testerClassA.getString(), classC.getStr());
+        assertEquals(testerClassA.getPrimitiveInteger(), classC.getPrimitiveInteger());
     }
 
 }
