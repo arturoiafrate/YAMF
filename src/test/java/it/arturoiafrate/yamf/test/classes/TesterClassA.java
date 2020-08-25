@@ -5,6 +5,7 @@ public class TesterClassA {
     private Boolean aBoolean;
     private String string;
     private int primitiveInteger;
+    private InternalClassA internal;
 
     public TesterClassA(Integer integer, Boolean aBoolean, String string, int primitiveInteger) {
         this.integer = integer;
@@ -45,5 +46,13 @@ public class TesterClassA {
 
     public void setPrimitiveInteger(int primitiveInteger) {
         this.primitiveInteger = primitiveInteger;
+    }
+
+    public InternalClassA getInternal() {
+        return internal;
+    }
+
+    public void setInternal(InternalClassA internal) {
+        this.internal = internal;
     }
 }

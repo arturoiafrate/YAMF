@@ -4,6 +4,7 @@ import it.arturoiafrate.yamf.exception.GenericException;
 import it.arturoiafrate.yamf.obj.IGenericObject;
 import it.arturoiafrate.yamf.field.setter.IFieldSetter;
 import it.arturoiafrate.yamf.exception.IllegalAccessException;
+import org.apache.commons.lang3.ClassUtils;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -19,8 +20,14 @@ public class FieldSetter implements IFieldSetter {
             try {
                 Field field = clazz.getDeclaredField(fieldName);
                 field.setAccessible(true);
-                field.set(object, fieldValue);
-                return true;
+                if(field.getType().equals(fieldValue.getClass()) || //Same class type...
+                        (ClassUtils.isPrimitiveWrapper(fieldValue.getClass()) && //A primitive of this class type..
+                                ClassUtils.wrapperToPrimitive(fieldValue.getClass()).equals(field.getType()))
+                ){
+                    field.set(object, fieldValue);
+                    return true;
+                }
+                return false;
             } catch (NoSuchFieldException e) {
                 clazz = clazz.getSuperclass();
             } catch (java.lang.IllegalStateException | java.lang.IllegalAccessException  e) {

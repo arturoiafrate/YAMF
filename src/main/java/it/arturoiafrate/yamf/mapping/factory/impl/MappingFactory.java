@@ -12,10 +12,9 @@ import it.arturoiafrate.yamf.obj.impl.GenericObject;
 import it.arturoiafrate.yamf.mapping.factory.IMappingFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class MappingFactory implements IMappingFactory{
 
@@ -23,9 +22,11 @@ public class MappingFactory implements IMappingFactory{
     private IGenericObject target;
     private Class<?> targetClass;
     private IMappingSettings settings;
+    private List<String> alreadyProcessedSubClasses;
 
     public MappingFactory(){
         settings = new MappingSettings();
+        alreadyProcessedSubClasses = new ArrayList<>();
     }
 
     @Override
@@ -57,7 +58,7 @@ public class MappingFactory implements IMappingFactory{
         //1) Checking for mandatory fields
         checkForMandatoryFields();
         //2) Extracting field from soruce
-        Map<String, IGenericObject> valueMap = extractFieldsFromSource();
+        Map<String, IGenericObject> valueMap = extractFieldsFrom(source);
         //3) Setting extracted fields from source to target
         T tempTarget = settings.mapFieldsWithSameName() ?
                 setSTDValuesToTarget(valueMap) : getEmptyTarget();
@@ -76,6 +77,10 @@ public class MappingFactory implements IMappingFactory{
         AtomicReference<GenericException> ex = new AtomicReference<>(null);
         associationMap.forEach((fieldFrom, fieldTo) ->{
             try {
+                //Looking for sub-class fields...
+                if(fieldFrom.contains(".")){
+                    mapSubclassFields(valueMap, fieldFrom);
+                }
                 temp.set(setter.set(temp.get(), fieldTo, valueMap.get(fieldFrom)));
             } catch (GenericException e) {
                 ex.set(e);
@@ -86,7 +91,33 @@ public class MappingFactory implements IMappingFactory{
         return temp.get();
     }
 
-    private Map<String, IGenericObject> extractFieldsFromSource() throws IllegalAccessException {
+    private Map<String, IGenericObject> mapSubclassFields(Map<String, IGenericObject> valueMap, String fieldDefinition)
+            throws GenericException{
+        List<String> levels = Arrays.stream(fieldDefinition.split("\\.")).collect(Collectors.toList());
+        //Last level is the field, so we don't need to extract fields
+        levels.remove(levels.size()-1);
+        AtomicReference<String> current = new AtomicReference<>("");
+        AtomicReference<GenericException> ex = new AtomicReference<>(null);
+        levels.forEach( level -> {
+            try{
+                current.set(current.get().concat(level));
+                if(!alreadyProcessedSubClasses.contains(level)){
+                    IGenericObject currentSource = valueMap.get(current.get());
+                    current.set(current.get().concat("."));
+                    Map<String, IGenericObject> currentFields = addPrefix(extractFieldsFrom(currentSource), current.get());
+                    valueMap.putAll(currentFields);
+                    alreadyProcessedSubClasses.add(level);
+                }
+            } catch (GenericException e){
+                ex.set(e);
+            }
+        });
+        if(Optional.ofNullable(ex.get()).isPresent())
+            throw ex.get();
+        return valueMap;
+    }
+
+    private Map<String, IGenericObject> extractFieldsFrom(IGenericObject source) throws IllegalAccessException {
         Map<String, IGenericObject> valueMap = new HashMap<>();
         if(source.getValue().isPresent()){
             Optional<Map<String, IGenericObject>> fields = new FieldGetter<>(source.getValue().get())
@@ -94,6 +125,12 @@ public class MappingFactory implements IMappingFactory{
             if(fields.isPresent()) valueMap.putAll(fields.get());
         }
         return valueMap;
+    }
+
+    private Map<String, IGenericObject> addPrefix(Map<String, IGenericObject> source, String prefix){
+        Map<String, IGenericObject> out = new HashMap<>();
+        source.forEach((key, value) -> out.put(prefix.concat(key), value));
+        return out;
     }
 
     private <T> T setSTDValuesToTarget(Map<String, IGenericObject> valueMap) throws GenericException{
