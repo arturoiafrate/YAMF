@@ -1,6 +1,6 @@
 package it.arturoiafrate.yamf.exception;
 
-public class GenericException extends Exception {
+public abstract class GenericException extends Exception {
 
     private final ErrorCode code;
 

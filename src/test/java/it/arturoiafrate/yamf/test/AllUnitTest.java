@@ -7,10 +7,7 @@ import it.arturoiafrate.yamf.field.getter.impl.FieldGetter;
 import it.arturoiafrate.yamf.obj.impl.GenericObject;
 import it.arturoiafrate.yamf.field.setter.IFieldSetter;
 import it.arturoiafrate.yamf.field.setter.impl.FieldSetter;
-import it.arturoiafrate.yamf.test.classes.InternalClassA;
-import it.arturoiafrate.yamf.test.classes.TesterClassA;
-import it.arturoiafrate.yamf.test.classes.TesterClassB;
-import it.arturoiafrate.yamf.test.classes.TesterClassC;
+import it.arturoiafrate.yamf.test.classes.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -125,6 +122,18 @@ public class AllUnitTest {
                 .doConvert();
 
         assertEquals(testerClassA.getInternal().getInternal2String(), classC2.getStr());
+    }
+
+    @Test
+    public void setFieldToSubclass() throws GenericException{
+        TesterClassD classD = new MappingFactory()
+                .fromObject(testerClassA)
+                .toClass(TesterClassD.class)
+                .mapFieldsWithSameName(false)
+                .mapAs("string", "internal.string")
+                .doConvert();
+
+        assertEquals(testerClassA.getString(), classD.getInternal().getString());
     }
 
 }
