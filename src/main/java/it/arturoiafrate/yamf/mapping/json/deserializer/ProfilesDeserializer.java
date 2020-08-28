@@ -1,8 +1,8 @@
 package it.arturoiafrate.yamf.mapping.json.deserializer;
 
 import com.google.gson.*;
-import it.arturoiafrate.yamf.mapping.json.objects.FieldAssociation;
-import it.arturoiafrate.yamf.mapping.json.objects.Profile;
+import it.arturoiafrate.yamf.mapping.profiles.objects.FieldAssociation;
+import it.arturoiafrate.yamf.mapping.profiles.objects.Profile;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

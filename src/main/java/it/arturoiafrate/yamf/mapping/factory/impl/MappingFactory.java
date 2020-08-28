@@ -6,10 +6,15 @@ import it.arturoiafrate.yamf.field.getter.impl.FieldGetter;
 import it.arturoiafrate.yamf.field.setter.IFieldSetter;
 import it.arturoiafrate.yamf.field.setter.impl.FieldSetter;
 import it.arturoiafrate.yamf.mapping.factory.settings.IMappingSettings;
+import it.arturoiafrate.yamf.mapping.factory.settings.enumerators.ProfilesEncoding;
 import it.arturoiafrate.yamf.mapping.factory.settings.impl.MappingSettings;
+import it.arturoiafrate.yamf.mapping.profiles.loader.IProfilesLoader;
+import it.arturoiafrate.yamf.mapping.profiles.loader.impl.JsonProfileLoader;
+import it.arturoiafrate.yamf.mapping.profiles.objects.Profile;
 import it.arturoiafrate.yamf.obj.IGenericObject;
 import it.arturoiafrate.yamf.obj.impl.GenericObject;
 import it.arturoiafrate.yamf.mapping.factory.IMappingFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -23,10 +28,13 @@ public class MappingFactory implements IMappingFactory{
     private Class<?> targetClass;
     private IMappingSettings settings;
     private List<String> alreadyProcessedSubClasses;
+    private Map<String, Profile> profileMap;
+    private String defaultProfile;
 
     public MappingFactory(){
         settings = new MappingSettings();
         alreadyProcessedSubClasses = new ArrayList<>();
+        profileMap = new LinkedHashMap<>();
     }
 
     @Override
@@ -54,15 +62,45 @@ public class MappingFactory implements IMappingFactory{
     }
 
     @Override
+    public IMappingFactory loadProfiles(String profiles, ProfilesEncoding encoding) {
+        IProfilesLoader loader = switch (encoding){
+            case JSON -> new JsonProfileLoader(profiles);
+        };
+        profileMap = loader.getProfiles();
+        return this;
+    }
+
+    @Override
+    public IMappingFactory useProfile(String profileName) {
+        defaultProfile = profileName;
+        return this;
+    }
+
+    @Override
     public <T> T doConvert() throws GenericException {
-        //1) Checking for mandatory fields
+        //Checking for mandatory fields
         checkForMandatoryFields();
-        //2) Extracting field from soruce
+        //Extracting field from soruce
         Map<String, IGenericObject> valueMap = extractFieldsFrom(source);
-        //3) Setting extracted fields from source to target
+
+        //If profile map is not empty, i will use the default profile for mapping.
+        boolean useProfile = !profileMap.isEmpty();
+        if(useProfile){
+            //If default profile is empty, default profile is set as the first in map.
+            if(StringUtils.isEmpty(defaultProfile) || !profileMap.containsKey(defaultProfile)) defaultProfile
+                    = profileMap.entrySet().iterator().next().getKey();
+            Profile profileToUse = profileMap.get(defaultProfile);
+            //Reset settings...
+            settings = new MappingSettings();
+            settings.mapFieldsWithSameName(profileToUse.getMapFieldsWithSameName());
+            profileToUse.getAssociations().forEach( association ->
+                    settings.addSourceToTargetFieldAssociation(association.getSource(), association.getTarget()));
+        }
+
+        //Setting extracted fields from source to target
         T tempTarget = settings.mapFieldsWithSameName() ?
                 setSTDValuesToTarget(valueMap) : getEmptyTarget();
-        //4) Mapping extra fields from source to target
+        //Mapping extra fields from source to target
         if(!settings.getFieldsAssociation().isEmpty()){
             tempTarget = setSpecificFieldsToTarget(tempTarget, valueMap, settings.getFieldsAssociation());
         }
@@ -164,4 +202,5 @@ public class MappingFactory implements IMappingFactory{
         if(Optional.ofNullable(source).isEmpty()) throw new MandatoryPropertyNotFoundException("source");
         if(Optional.ofNullable(targetClass).isEmpty()) throw new MandatoryPropertyNotFoundException("target");
     }
+
 }

@@ -4,8 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.arturoiafrate.yamf.exception.GenericException;
 import it.arturoiafrate.yamf.mapping.factory.impl.MappingFactory;
+import it.arturoiafrate.yamf.mapping.factory.settings.enumerators.ProfilesEncoding;
 import it.arturoiafrate.yamf.mapping.json.deserializer.ProfilesDeserializer;
-import it.arturoiafrate.yamf.mapping.json.objects.Profile;
+import it.arturoiafrate.yamf.mapping.profiles.objects.Profile;
 import it.arturoiafrate.yamf.obj.IGenericObject;
 import it.arturoiafrate.yamf.field.getter.impl.FieldGetter;
 import it.arturoiafrate.yamf.obj.impl.GenericObject;
@@ -141,7 +142,7 @@ public class AllUnitTest {
     }
 
     @Test
-    public void deserialization(){
+    public void jsonDeserialization(){
         String jsonStr = """
                   {
                   	"profiles": [{
@@ -172,6 +173,55 @@ public class AllUnitTest {
         assertEquals(profileMap.get("testProfile").getAssociations().get(0).getSource(), "string");
         assertEquals(profileMap.get("testProfile").getAssociations().get(0).getTarget(), "str");
 
+    }
+
+    @Test
+    public void jsonMapping() throws GenericException{
+        String jsonStr = """
+                  {
+                  	"profiles": [{
+                  		"profileName": "toUse",
+                  		"profile": {
+                  			"mapFieldsWithSameName": false,
+                  			"associations": [{
+                  					"source": "integer",
+                  					"target": "itg"
+                  				},
+                  				{
+                  					"source": "aBoolean",
+                  					"target": "bln"
+                  				},
+                  				{
+                  					"source": "string",
+                  					"target": "str"
+                  				}
+                  			]
+                  		}
+                  	}, {
+                  		"profileName": "profile2",
+                  		"profile": {
+                  			"mapFieldsWithSameName": true,
+                  			"associations": [{
+                  					"source": "thisDoesNotExists",
+                  					"target": "thisToo"
+                  				}
+                  			]
+                  		}
+                  	}]
+                  }
+                """;
+
+        TesterClassC classC = new MappingFactory()
+                .loadProfiles(jsonStr, ProfilesEncoding.JSON)
+                .fromObject(testerClassA)
+                .toClass(TesterClassC.class)
+                .useProfile("toUse")
+                .doConvert();
+
+        assertEquals(testerClassA.getaBoolean(), classC.getBln());
+        assertEquals(testerClassA.getInteger(), classC.getItg());
+        assertEquals(testerClassA.getString(), classC.getStr());
+        assertNotEquals(testerClassA.getPrimitiveInteger(), classC.getPrimitiveInteger());
     }
 
 }

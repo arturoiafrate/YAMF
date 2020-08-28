@@ -1,4 +1,4 @@
-package it.arturoiafrate.yamf.mapping.json.objects;
+package it.arturoiafrate.yamf.mapping.profiles.objects;
 
 import java.io.Serializable;
 
