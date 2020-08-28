@@ -7,7 +7,6 @@
 
 <br />
 <p align="center">
-  
   <h3 align="center">YAMF</h3>
 
   <p align="center">
@@ -49,10 +48,55 @@ ClassB classBObj = new MappingFactory()
     .doConvert();
 ```
 
+You can also use a json to load profiles and mapping objects with one of them:
+```java
+ClassA classAObj = new ClassA();//Do other stuff on the object...
+ClassB classBObj = new MappingFactory()
+                .loadProfiles(jsonString, ProfilesEncoding.JSON)
+                .fromObject(classAObj)
+                .toClass(ClassB.class)
+                .useProfile("profileToUse")
+                .doConvert();
+```
+The JSON format is like this:
+```json
+{
+    "profiles": [{
+        "profileName": "profileA",
+        "profile": {
+            "mapFieldsWithSameName": false,
+            "associations": [{
+                    "source": "integer",
+                    "target": "itg"
+                },
+                {
+                    "source": "aBoolean",
+                    "target": "bln"
+                },
+                {
+                    "source": "string",
+                    "target": "str"
+                }
+            ]
+        }
+    }, {
+        "profileName": "profileB",
+        "profile": {
+            "mapFieldsWithSameName": true,
+            "associations": [{
+                    "source": "string",
+                    "target": "internal.string"
+                }
+            ]
+        }
+  }]
+}
+```
+
 ## Roadmap
 This is the list of all the features that will be implemented with the next releases.
 * An alternative way to mapping between classes with an annotation form.
-* An alternative way to mapping between classes with json/xml form.
+* An alternative way to mapping between classes with ~~json~~/xml form.
 * Upload next releases to a maven repository.
 
 You can always <a href="https://github.com/arturoiafrate/YAMF/issues">request a feature</a> if you want.
@@ -60,6 +104,7 @@ You can always <a href="https://github.com/arturoiafrate/YAMF/issues">request a 
 ## Dependencies
 * <a href="https://junit.org/junit5/">JUnit Framework 5.6.2</a>
 * <a href="https://commons.apache.org/proper/commons-lang/">Apache Commons Lang 3.8.1</a>
+* <a href="https://github.com/google/gson">Gson 2.8.6</a>
 
 [contributors-shield]: https://img.shields.io/github/contributors/arturoiafrate/YAMF.svg?style=flat-square
 [contributors-url]: https://github.com/arturoiafrate/YAMF/graphs/contributors
