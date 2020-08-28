@@ -1,7 +1,11 @@
 package it.arturoiafrate.yamf.test;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import it.arturoiafrate.yamf.exception.GenericException;
 import it.arturoiafrate.yamf.mapping.factory.impl.MappingFactory;
+import it.arturoiafrate.yamf.mapping.json.deserializer.ProfilesDeserializer;
+import it.arturoiafrate.yamf.mapping.json.objects.Profile;
 import it.arturoiafrate.yamf.obj.IGenericObject;
 import it.arturoiafrate.yamf.field.getter.impl.FieldGetter;
 import it.arturoiafrate.yamf.obj.impl.GenericObject;
@@ -134,6 +138,40 @@ public class AllUnitTest {
                 .doConvert();
 
         assertEquals(testerClassA.getString(), classD.getInternal().getString());
+    }
+
+    @Test
+    public void deserialization(){
+        String jsonStr = """
+                  {
+                  	"profiles": [{
+                  		"profileName": "testProfile",
+                  		"profile": {
+                  			"mapFieldsWithSameName": true,
+                  			"associations": [{
+                  					"source": "string",
+                  					"target": "str"
+                  				},
+                  				{
+                  					"source": "Integer",
+                  					"target": "itg"
+                  				}
+                  			]
+                  		}
+                  	}]
+                  }
+                """;
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Map.class, new ProfilesDeserializer())
+                .create();
+
+        Map<String, Profile> profileMap = gson.fromJson(jsonStr, Map.class);
+
+        assertEquals(profileMap.size(), 1);
+        assertEquals(profileMap.get("testProfile").getMapFieldsWithSameName(), true);
+        assertEquals(profileMap.get("testProfile").getAssociations().get(0).getSource(), "string");
+        assertEquals(profileMap.get("testProfile").getAssociations().get(0).getTarget(), "str");
+
     }
 
 }
