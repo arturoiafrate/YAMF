@@ -2,7 +2,7 @@ package it.arturoiafrate.yamf.mapping.profiles.loader.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.arturoiafrate.yamf.mapping.json.deserializer.ProfilesDeserializer;
+import it.arturoiafrate.yamf.mapping.json.deserializer.JsonProfilesDeserializer;
 import it.arturoiafrate.yamf.mapping.profiles.loader.IProfilesLoader;
 import it.arturoiafrate.yamf.mapping.profiles.objects.Profile;
 
@@ -16,7 +16,7 @@ public class JsonProfileLoader implements IProfilesLoader {
     public JsonProfileLoader(String json){
         jsonString = json;
         gson = new GsonBuilder()
-                .registerTypeAdapter(Map.class, new ProfilesDeserializer())
+                .registerTypeAdapter(Map.class, new JsonProfilesDeserializer())
                 .create();
     }
 

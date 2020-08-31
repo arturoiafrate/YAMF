@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import it.arturoiafrate.yamf.exception.GenericException;
 import it.arturoiafrate.yamf.mapping.factory.impl.MappingFactory;
 import it.arturoiafrate.yamf.mapping.factory.settings.enumerators.ProfilesEncoding;
-import it.arturoiafrate.yamf.mapping.json.deserializer.ProfilesDeserializer;
+import it.arturoiafrate.yamf.mapping.json.deserializer.JsonProfilesDeserializer;
 import it.arturoiafrate.yamf.mapping.profiles.objects.Profile;
 import it.arturoiafrate.yamf.obj.IGenericObject;
 import it.arturoiafrate.yamf.field.getter.impl.FieldGetter;
@@ -163,7 +163,7 @@ public class AllUnitTest {
                   }
                 """;
         Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Map.class, new ProfilesDeserializer())
+                .registerTypeAdapter(Map.class, new JsonProfilesDeserializer())
                 .create();
 
         Map<String, Profile> profileMap = gson.fromJson(jsonStr, Map.class);

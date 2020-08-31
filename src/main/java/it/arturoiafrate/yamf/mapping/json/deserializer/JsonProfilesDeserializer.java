@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProfilesDeserializer implements JsonDeserializer<Map<String, Profile>> {
+public class JsonProfilesDeserializer implements JsonDeserializer<Map<String, Profile>> {
     @Override
     public Map<String, Profile> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         final Map<String, Profile> out = new HashMap<>();
