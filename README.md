@@ -92,12 +92,53 @@ The JSON format is like this:
   }]
 }
 ```
+Altenatively, you can use the XML form:
+```java
+ClassA classAObj = new ClassA();//Do other stuff on the object...
+ClassB classBObj = new MappingFactory()
+                .loadProfiles(xmlString, ProfilesEncoding.XML)
+                .fromObject(classAObj)
+                .toClass(ClassB.class)
+                .useProfile("profileToUse")
+                .doConvert();
+```
+The XML must follow these specifications:
+```xml
+<?xml version="1.0"?>
+<profiles>
+<profile name="profileA">
+    <mapFieldsWithSameName>false</mapFieldsWithSameName>
+    <associations>
+      <association>
+          <source>integer</source>
+          <target>itg</target>
+      </association>
+      <association>
+          <source>aBoolean</source>
+          <target>bln</target>
+      </association>
+      <association>
+          <source>string</source>
+          <target>str</target>
+      </association>
+    </associations>
+</profile>
+<profile name="profileB">
+    <mapFieldsWithSameName>true</mapFieldsWithSameName>
+    <associations>
+      <association>
+          <source>string</source>
+          <target>internal.string</target>
+      </association>
+    </associations>
+</profile>
+</profiles>
+```
 
 ## Roadmap
 This is the list of all the features that will be implemented with the next releases.
 * An alternative way to mapping between classes with an annotation form.
-* An alternative way to mapping between classes with ~~json~~/xml form.
-* Upload next releases to a maven repository.
+* ~~An alternative way to mapping between classes with json/xml form.~~ <b>Done.</b>
 
 You can always <a href="https://github.com/arturoiafrate/YAMF/issues">request a feature</a> if you want.
 

@@ -7,6 +7,7 @@ import it.arturoiafrate.yamf.mapping.factory.impl.MappingFactory;
 import it.arturoiafrate.yamf.mapping.factory.settings.enumerators.ProfilesEncoding;
 import it.arturoiafrate.yamf.mapping.json.deserializer.JsonProfilesDeserializer;
 import it.arturoiafrate.yamf.mapping.profiles.objects.Profile;
+import it.arturoiafrate.yamf.mapping.xml.deserializer.XmlProfilesDeserializer;
 import it.arturoiafrate.yamf.obj.IGenericObject;
 import it.arturoiafrate.yamf.field.getter.impl.FieldGetter;
 import it.arturoiafrate.yamf.obj.impl.GenericObject;
@@ -211,12 +212,7 @@ public class AllUnitTest {
                   }
                 """;
 
-        TesterClassC classC = new MappingFactory()
-                .loadProfiles(jsonStr, ProfilesEncoding.JSON)
-                .fromObject(testerClassA)
-                .toClass(TesterClassC.class)
-                .useProfile("toUse")
-                .doConvert();
+        TesterClassC classC = genericMapping(jsonStr, ProfilesEncoding.JSON);
 
         assertEquals(testerClassA.getaBoolean(), classC.getBln());
         assertEquals(testerClassA.getInteger(), classC.getItg());
@@ -224,4 +220,86 @@ public class AllUnitTest {
         assertNotEquals(testerClassA.getPrimitiveInteger(), classC.getPrimitiveInteger());
     }
 
+    @Test
+    public void xmlDeserialization() throws Exception{
+        String xmlString = """
+<?xml version="1.0"?>
+<profiles>
+<profile name="testProfile">
+    <mapFieldsWithSameName>true</mapFieldsWithSameName>
+    <associations>
+      <association>
+          <source>string</source>
+          <target>str</target>
+      </association>
+      <association>
+          <source>Integer</source>
+          <target>itg</target>
+      </association>
+    </associations>
+</profile>
+</profiles>
+                """;
+
+        XmlProfilesDeserializer profilesDeserializer = new XmlProfilesDeserializer(xmlString);
+        Map<String, Profile> profileMap = profilesDeserializer.deserialize();
+
+        assertEquals(profileMap.size(), 1);
+        assertEquals(profileMap.get("testProfile").getMapFieldsWithSameName(), true);
+        assertEquals(profileMap.get("testProfile").getAssociations().get(0).getSource(), "string");
+        assertEquals(profileMap.get("testProfile").getAssociations().get(0).getTarget(), "str");
+    }
+
+    @Test
+    public void xmlMapping() throws GenericException{
+        String xmlString = """
+<?xml version="1.0"?>
+<profiles>
+<profile name="toUse">
+    <mapFieldsWithSameName>false</mapFieldsWithSameName>
+    <associations>
+      <association>
+          <source>integer</source>
+          <target>itg</target>
+      </association>
+      <association>
+          <source>aBoolean</source>
+          <target>bln</target>
+      </association>
+      <association>
+          <source>string</source>
+          <target>str</target>
+      </association>
+    </associations>
+</profile>
+<profile name="profile2">
+    <mapFieldsWithSameName>true</mapFieldsWithSameName>
+    <associations>
+      <association>
+          <source>thisDoesNotExists</source>
+          <target>thisToo</target>
+      </association>
+    </associations>
+</profile>
+</profiles>
+                """;
+
+        TesterClassC classC = genericMapping(xmlString, ProfilesEncoding.XML);
+
+        assertEquals(testerClassA.getaBoolean(), classC.getBln());
+        assertEquals(testerClassA.getInteger(), classC.getItg());
+        assertEquals(testerClassA.getString(), classC.getStr());
+        assertNotEquals(testerClassA.getPrimitiveInteger(), classC.getPrimitiveInteger());
+
+    }
+
+
+    private TesterClassC genericMapping(String profiles, ProfilesEncoding encoding) throws GenericException{
+        return new MappingFactory()
+                .loadProfiles(profiles, encoding)
+                .fromObject(testerClassA)
+                .toClass(TesterClassC.class)
+                .useProfile("toUse")
+                .doConvert();
+    }
 }

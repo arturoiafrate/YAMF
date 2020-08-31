@@ -10,6 +10,7 @@ import it.arturoiafrate.yamf.mapping.factory.settings.enumerators.ProfilesEncodi
 import it.arturoiafrate.yamf.mapping.factory.settings.impl.MappingSettings;
 import it.arturoiafrate.yamf.mapping.profiles.loader.IProfilesLoader;
 import it.arturoiafrate.yamf.mapping.profiles.loader.impl.JsonProfileLoader;
+import it.arturoiafrate.yamf.mapping.profiles.loader.impl.XmlProfileLoader;
 import it.arturoiafrate.yamf.mapping.profiles.objects.Profile;
 import it.arturoiafrate.yamf.obj.IGenericObject;
 import it.arturoiafrate.yamf.obj.impl.GenericObject;
@@ -62,9 +63,10 @@ public class MappingFactory implements IMappingFactory{
     }
 
     @Override
-    public IMappingFactory loadProfiles(String profiles, ProfilesEncoding encoding) {
+    public IMappingFactory loadProfiles(String profiles, ProfilesEncoding encoding) throws GenericException {
         IProfilesLoader loader = switch (encoding){
             case JSON -> new JsonProfileLoader(profiles);
+            case XML -> new XmlProfileLoader(profiles);
         };
         profileMap = loader.getProfiles();
         return this;

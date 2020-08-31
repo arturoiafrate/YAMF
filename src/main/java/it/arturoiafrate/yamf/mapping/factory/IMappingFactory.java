@@ -8,7 +8,7 @@ public interface IMappingFactory {
     <T> IMappingFactory toClass(Class<T> clazz);
     IMappingFactory mapFieldsWithSameName(boolean value);
     IMappingFactory mapAs(String sourceField, String targetField);
-    IMappingFactory loadProfiles(String profiles, ProfilesEncoding encoding);
+    IMappingFactory loadProfiles(String profiles, ProfilesEncoding encoding) throws GenericException;
     IMappingFactory useProfile(String profileName);
     <T> T doConvert() throws GenericException;
 }
